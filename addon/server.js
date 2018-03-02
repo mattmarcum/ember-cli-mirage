@@ -149,7 +149,7 @@ export default class Server {
       'You cannot modify Mirage\'s environment once the server is created');
     this.environment = config.environment || 'development';
 
-    this.options = config;
+    this._config = config;
 
     this.timing = this.timing || config.timing || 400;
     this.namespace = this.namespace || config.namespace || '';
@@ -270,7 +270,7 @@ export default class Server {
    * @public
    */
   passthrough(...paths) {
-    let verbs = ['get', 'post', 'put', 'delete', 'patch'];
+    let verbs = ['get', 'post', 'put', 'delete', 'patch', 'options'];
     let lastArg = paths[paths.length - 1];
 
     if (paths.length === 0) {
@@ -296,7 +296,7 @@ export default class Server {
    * @public
    */
   loadFixtures(...args) {
-    let { fixtures } = this.options;
+    let { fixtures } = this._config;
     if (args.length) {
       let camelizedArgs = args.map(camelize);
       fixtures = _pick(fixtures, ...camelizedArgs);
@@ -482,7 +482,7 @@ export default class Server {
    * @private
    */
   _defineRouteHandlerHelpers() {
-    [['get'], ['post'], ['put'], ['delete', 'del'], ['patch'], ['head']].forEach(([verb, alias]) => {
+    [['get'], ['post'], ['put'], ['delete', 'del'], ['patch'], ['head'], ['options']].forEach(([verb, alias]) => {
       this[verb] = (path, ...args) => {
         let [ rawHandler, customizedCode, options ] = extractRouteArguments(args);
         this._registerRouteHandler(verb, path, rawHandler, customizedCode, options);
